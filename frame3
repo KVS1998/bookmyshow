@@ -1,0 +1,289 @@
+package dbs;
+
+import java.awt.Dimension;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
+
+import com.mysql.jdbc.PreparedStatement;
+
+public class moviedet implements ActionListener
+{
+	JFrame jfrm;
+	JCheckBox jtp[]=new JCheckBox[5];
+	JPanel jp[]=new JPanel[5];
+	
+	
+	String name[]=new String[5];
+	String address[]=new String[5];
+	String seat[]=new String[5];
+	
+	String theatreid="";
+	int k1=0;
+	String movieid;
+	int x;
+	String a;
+    public moviedet(String a,int x)   
+    {
+    	this.x=x;
+    	// System.out.println("movie det"+x);
+    	this.a=a;
+        jfrm=new JFrame("movie details page");
+        jfrm.setSize(400,300);
+        jfrm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        movieq(a);
+        
+        jfrm.setLayout(new GridLayout(k1,1,10,10));
+        for(int i=0;i<k1;i++)
+        {
+        	String r=name[i]+" "+address[i];
+        	jtp[i]=new JCheckBox(r);
+        	jtp[i].addActionListener((ActionListener) this);
+        }
+        for(int i=0;i<k1;i++)
+        {
+        	jp[i]=new JPanel();
+        	jp[i].add(jtp[i]);
+            jfrm.add(jp[i]);            
+        }
+        
+        jfrm.setLocationRelativeTo(null);
+        jfrm.setResizable(false);
+        jfrm.setVisible(true);
+    }
+    public void actionPerformed(ActionEvent ae)
+    {  	
+        String r=ae.getActionCommand();
+        int x1=0;
+        for(int i=0;i<r.length();i++)
+        {
+        	if(r.charAt(i)==' ')
+        	{
+        		x1=i;
+        		break;
+        	}
+        }
+        String rname=r.substring(0,x1);
+        String radd=r.substring(x1+1,r.length());
+        try
+        {
+        String url="jdbc:mysql://localhost:3306/showbook2?autoReconnect=true&useSSL=false";
+		String uname="root";
+		String pass="KEya@1998";		
+		Class.forName("com.mysql.jdbc.Driver");
+		Connection con=DriverManager.getConnection(url,uname,pass);
+		
+		//find the selected theatre_id and initialize theatreid
+		String query="select t_id from theatre where address=?";
+		PreparedStatement st=(PreparedStatement)con.prepareStatement(query);
+		st.setString(1, radd);
+		ResultSet rs=st.executeQuery();
+		
+		while(rs.next())
+			theatreid=rs.getString(1);
+		//System.out.println(theatreid);
+		String query2="select ticket_price,timing from theatre_movie where t_id=? and movie_id=?";
+		PreparedStatement st2=(PreparedStatement)con.prepareStatement(query2);
+		st2.setString(1, theatreid);
+		st2.setString(2, movieid);
+		
+		ResultSet rs2=st2.executeQuery();
+		String w1,w2;
+		w1="";w2="";
+		while(rs2.next())
+		{
+			w1=rs2.getString(1);
+			w2=rs2.getString(2);
+		}
+		jfrm.setVisible(false);
+		new booked(x,movieid,r,w1,w2);
+        }
+        catch(Exception e)
+        {
+        	
+        }
+        //System.out.println(rname+" "+radd);
+    }
+    public void movieq(String m)
+    {
+    	String s[]=new String[10];
+    	int k=0;
+    	movieid=m;
+        //m is the movie_id
+    	//System.out.println(m);
+        try
+        {
+        	
+        	String url="jdbc:mysql://localhost:3306/showbook2?autoReconnect=true&useSSL=false";
+    		String uname="root";
+    		String pass="KEya@1998";
+    		Class.forName("com.mysql.jdbc.Driver");
+    		Connection con=DriverManager.getConnection(url,uname,pass);
+    		
+    		String query3="select t_id from theatre_movie where movie_id=?";
+    		PreparedStatement st3=(PreparedStatement)con.prepareStatement(query3);
+    		st3.setString(1, m);
+    		ResultSet rs3=st3.executeQuery();
+    		while (rs3.next()) 
+    		{
+    		    s[k]=rs3.getString(1);
+    		    k++;
+    		}
+    		st3.close();
+    		//s[] contains the t_id
+    		for(int i=0;i<k;i++)
+    		{
+    			String query1="select tname,address,no_of_seats from theatre where t_id=?";
+    			PreparedStatement st1=(PreparedStatement)con.prepareStatement(query1);
+        		st1.setString(1, s[i]);
+        		ResultSet rs1=st1.executeQuery();
+        		while (rs1.next()) 
+        		{
+        			name[k1]=rs1.getString(1);
+        			address[k1]=rs1.getString(2);
+        			seat[k1]=rs1.getString(3);
+        			k1++;
+        		}
+        		st1.close();    			
+    		}
+    		con.close();
+            
+        }
+        catch(Exception e)
+        {}
+    }
+    public static void main(String args[])throws Exception
+    {
+	   
+    	SwingUtilities.invokeLater(new Runnable() 
+       {
+            public void run() {
+                new moviedet("",0);
+            }
+        });
+    }
+}
+Frame 4:
+package dbs;
+
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
+
+import com.mysql.jdbc.PreparedStatement;
+
+import javax.swing.*;
+public class booked 
+{
+	JFrame jfrm;	
+	public booked(int x,String movieid,String r,String w1,String w2)   
+    {
+        jfrm=new JFrame("book my show");
+        jfrm.setSize(400,300);
+        jfrm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        
+        JPanel jp[]=new JPanel[5];
+        JLabel jl[]=new JLabel[5];
+        
+        jfrm.setLayout(new GridLayout(5,1,5,5));
+        String name=nameq(x);
+        String moviename=movienameq(movieid);
+        
+        jl[0]=new JLabel("Name: "+name);
+        jl[1]=new JLabel("Movie: "+moviename);
+        jl[2]=new JLabel("Theatre: "+r);
+        jl[3]=new JLabel("Ticket price:Rs "+w1);
+        jl[4]=new JLabel("Time: "+w2);
+        for(int i=0;i<5;i++)
+        {
+        	jp[i]=new JPanel();
+        	jp[i].add(jl[i]);
+        	jfrm.add(jp[i]);
+        }
+        
+        jfrm.setLocationRelativeTo(null);
+        jfrm.setResizable(false);
+        jfrm.setVisible(true);        
+    }
+	public String nameq(int x)
+	{
+		String g="";
+		try
+    	{
+    	String url="jdbc:mysql://localhost:3306/showbook2?autoReconnect=true&useSSL=false";
+		String uname="root";
+		String pass="KEya@1998";
+		Class.forName("com.mysql.jdbc.Driver");
+		Connection con=DriverManager.getConnection(url,uname,pass);
+    	String query="select distinct name from customer where id=?";  
+		PreparedStatement st=(PreparedStatement)con.prepareStatement(query);
+		st.setInt(1, x);
+		ResultSet rs=st.executeQuery();
+		
+		while(rs.next())
+		{
+			g=rs.getString(1);
+		}
+		//System.out.println(g);
+    	}
+    	catch(Exception e)
+    	{
+    		
+    	}
+		return g;		
+	}
+	
+	public String movienameq(String movieid)
+	{
+		String g="";
+		try
+    	{
+    	String url="jdbc:mysql://localhost:3306/showbook2?autoReconnect=true&useSSL=false";
+		String uname="root";
+		String pass="KEya@1998";
+		Class.forName("com.mysql.jdbc.Driver");
+		Connection con=DriverManager.getConnection(url,uname,pass);
+    	String query="select distinct mname from movies where movie_id=?";  
+		PreparedStatement st=(PreparedStatement)con.prepareStatement(query);
+		st.setString(1, movieid);
+		ResultSet rs=st.executeQuery();
+		
+		while(rs.next())
+		{
+			g=rs.getString(1);
+		}
+		//System.out.println(g);
+    	}
+    	catch(Exception e)
+    	{
+    		
+    	}
+		return g;		
+	}
+	public static void main(String args[])throws Exception
+    {
+	   
+    	SwingUtilities.invokeLater(new Runnable() 
+       {
+            public void run() {
+                new booked(0,"","","","");
+            }
+        });
+    }
+}
