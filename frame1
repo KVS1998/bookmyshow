@@ -1,0 +1,114 @@
+package dbs;
+
+import javax.swing.*;
+import com.mysql.jdbc.PreparedStatement;
+
+import java.awt.*;
+	import java.awt.BorderLayout;
+	import java.awt.event.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
+public class login implements ActionListener
+	{
+	    JButton jb1;
+	    JTextField jtf1,jtf2;
+	    JPanel jp1,jp2,jp3,jp4;
+	    JLabel jl1,jl2;
+	    JFrame jfrm;
+	    int x=0;
+	    public login()   
+	    {
+	    	x=(int)(Math.random()*1000);
+	        jfrm=new JFrame("Login page");
+	        jfrm.setSize(400,300);
+	        jfrm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+	        jb1=new JButton("Login");
+	        jtf1=new JTextField(15);
+	        jtf2=new JTextField(15);
+	        jl1=new JLabel("Name");
+	        jl2=new JLabel("phone no");
+
+	        jfrm.setLayout(new GridLayout(5,1,5,5));
+	        jb1.setSize(new Dimension(100,50));
+
+	        jb1.addActionListener(this);
+	        jtf1.addActionListener(this);
+	        jtf2.addActionListener(this);
+	        
+	        jp1=new JPanel();
+	        jp2=new JPanel();
+	        jp3=new JPanel();
+	        jp4=new JPanel();
+	        
+	        jfrm.setLayout(new BorderLayout());
+	        jp1.setLayout(new BorderLayout());
+	        
+	        jp1.add(jp3,BorderLayout.NORTH);
+	        jp1.add(jp4,BorderLayout.SOUTH);
+	        
+	        jp3.add(jl1,BorderLayout.NORTH);
+	        jp3.add(jtf1,BorderLayout.SOUTH);
+	        jp4.add(jl2,BorderLayout.NORTH);
+	        jp4.add(jtf2,BorderLayout.SOUTH);
+	        jp2.add(jb1);
+
+	        jfrm.add(jp1,BorderLayout.NORTH);
+	        jfrm.add(jp2,BorderLayout.SOUTH);
+	        
+	        jfrm.setLocationRelativeTo(null);
+	        jfrm.setResizable(false);
+	        jfrm.setVisible(true);
+	    }
+
+	    public void actionPerformed(ActionEvent ae)
+	    {
+	            if(ae.getActionCommand().equals("Login"))
+	            {
+	            	  jfrm.setVisible(false);
+                      String m1=jtf1.getText();
+                      String m2=jtf2.getText();
+                     // System.out.println("login"+x);
+                      // System.out.println(m1+" "+m2);
+                      
+	          	        try
+	          	        {
+	          	        	
+	          	        	String url="jdbc:mysql://localhost:3306/showbook2?autoReconnect=true&useSSL=false";
+	          	    		String uname="root";
+	          	    		String pass="KEya@1998";
+	          	    		Class.forName("com.mysql.jdbc.Driver");
+	          	    		Connection con=DriverManager.getConnection(url,uname,pass);
+	          	    		
+	          	    		String query="insert into customer values(?,?,?)";	          	    		
+	          	    		PreparedStatement st=(PreparedStatement) con.prepareStatement(query);
+	          	    		st.setInt(1, x);
+	          	    		st.setString(2,m1);
+	          	    		st.setString(3,m2);
+	          	    		int count=st.executeUpdate();
+	          	    		//System.out.println(count);
+	          	    		st.close();
+	          	    		con.close();
+	          	            
+	          	        }
+	          	        catch(Exception e)
+	          	        {}
+	          	    
+	                  new bookshow(x);
+	                
+	            }
+	        
+	    }
+
+	    public static void main(String args[])
+	    {
+	        SwingUtilities.invokeLater(new Runnable() 
+	            {
+	                public void run() {
+	                    new login();
+	                }
+	            });
+	    }
+	}
