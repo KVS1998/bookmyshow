@@ -1,0 +1,54 @@
+create table theatre(
+t_id varchar(5) primary key,
+tname varchar(20),
+address varchar(30),
+no_of_seats numeric(3));
+
+create table movies(
+movie_id varchar(5) primary key,
+mname varchar(20),
+director varchar(20),
+certification varchar(3));
+
+create table theatre_movie(
+movie_id varchar(5),
+t_id varchar(5),
+timing numeric(4,2),
+ticket_price numeric(5,3),
+primary key(movie_id,t_id));
+
+create table customer(
+id numeric(3,0) primary key,
+name varchar(30),
+phone_no varchar(12));
+
+insert into theatre values('MUM01','inox','bandra, mumbai',50);
+insert into theatre values('MUM02','inox','juhu, mumbai',50);
+insert into theatre values('BAN01','inox','whitefield, bangalore',50);
+insert into theatre values('KOL01','inox','salt lake, kolkata',50);
+insert into theatre values('MAN01','inox','manipal',50);
+
+insert into movies values('10011','minions','abc','U');
+insert into movies values('10021','black panther','asd','U');
+insert into movies values('10031','iron man','xyz','U');
+
+insert into theatre_movie values('10011','MUM01',10.00,50);
+insert into theatre_movie values('10011','KOL01',12.00,60);
+insert into theatre_movie values('10021','BAN01',10.00,90.0);
+insert into theatre_movie values('10031','MUM02',4.00,80.0);
+insert into theatre_movie values('10031','MAN01',6.00,80.0);
+insert into theatre_movie values('10031','KOL01',2.00,80.0);
+insert into theatre_movie values('10011','BAN01',10.00,50.0);
+insert into theatre_movie values('10011','MAN01',3.00,50.0);
+insert into theatre_movie values('10021','MUM01',6.00,90.0);
+
+insert into customer values(?,?,?);
+select movie_id from movies where mname=?;
+select distinct mname from movies;
+select t_id from theatre where address=?;
+select ticket_price,timing from theatre_movie where t_id=? and movie_id=?;
+select t_id from theatre_movie where movie_id=?;
+select tname,address,no_of_seats from theatre where t_id=?;
+select distinct name from customer where id=?;
+select distinct mname from movies where movie_id=?;
+
