@@ -1,0 +1,79 @@
+package dbs;
+
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.sql.*;
+import javax.swing.*;
+
+import com.mysql.jdbc.PreparedStatement;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.Statement;
+public class bookshow implements ActionListener
+{
+	String s[]=new String[10];
+	int k=0;
+	JFrame jfrm;
+	JButton jb[]=new JButton[10];	
+	JPanel jp[]=new JPanel[10];
+	int x;
+	public bookshow(int x)   
+    {
+		this.x=x;
+        jfrm=new JFrame("book my show");
+        jfrm.setSize(400,300);
+        jfrm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        
+        bookq();
+        
+        jfrm.setLayout(new GridLayout(k,1,10,10));
+        for(int i=0;i<k;i++)
+        {
+        	jp[i]=new JPanel();
+        	jb[i]=new JButton(s[i]);
+        	jp[i].add(jb[i]);
+        	jfrm.add(jp[i]);           	     	
+        }
+        for(int i=0;i<k;i++)
+        {
+        	jb[i].addActionListener(this);        	
+        }
+        jfrm.setLocationRelativeTo(null);
+        jfrm.setResizable(false);
+        jfrm.setVisible(true);        
+    }
+	public void actionPerformed(ActionEvent ae)
+    {
+    	
+           String m=ae.getActionCommand();
+           String g="";
+            if(ae.getActionCommand().equals(m))
+            {
+            	jfrm.setVisible(false);
+            	try
+            	{
+            	String url="jdbc:mysql://localhost:3306/showbook2?autoReconnect=true&useSSL=false";
+        		String uname="root";
+        		String pass="KEya@1998";
+        		Class.forName("com.mysql.jdbc.Driver");
+        		Connection con=DriverManager.getConnection(url,uname,pass);
+            	String query="select movie_id from movies where mname=?";  
+        		PreparedStatement st=(PreparedStatement)con.prepareStatement(query);
+        		st.setString(1, m);
+        		ResultSet rs=st.executeQuery();
+        		
+        		while(rs.next())
+        			g=rs.getString(1);
+            	}
+            	catch(Exception e)
+            	{
+            		
+            	}
+            	 //System.out.print("bookshow"+x);
+            	new moviedet(g,x);
+            }
+    }
+
